@@ -242,22 +242,6 @@ a{color:inherit;text-decoration:none;}
   50%{ box-shadow:0 0 0 3px var(--accent-soft), 0 0 26px var(--accent-dim), 0 0 46px var(--accent-dim); }
 }
 
-/* ================================================
-   FEATURE 2 — DOWNLOAD APP BUTTON (in top bar, beside search icon)
-   ================================================ */
-.download-app-btn{
-  flex:none;height:38px;display:flex;align-items:center;gap:6px;
-  padding:0 13px;border-radius:var(--radius-md);
-  background:linear-gradient(155deg,var(--accent) 0%,#0B8F7C 100%);
-  color:#052824;border:none;font-family:var(--font-mono);font-size:10.5px;
-  letter-spacing:1px;font-weight:600;white-space:nowrap;
-  box-shadow:0 4px 14px var(--accent-dim);
-  transition:transform .2s var(--ease), box-shadow .2s var(--ease);
-}
-.download-app-btn svg{width:15px;height:15px;flex:none;}
-.download-app-btn:active{transform:scale(.94);}
-.download-app-btn:hover{box-shadow:0 6px 20px var(--accent-dim);}
-
 .chips{
   display:flex;gap:8px;overflow-x:auto;margin-top:12px;padding-bottom:2px;
 }
@@ -548,14 +532,6 @@ a{color:inherit;text-decoration:none;}
           <div class="sub">Live &amp; On Demand</div>
         </div>
       </div>
-      <!-- ==============================
-           FEATURE 2 — DOWNLOAD APP BUTTON
-           Paste your APK link in APK_DOWNLOAD_URL below (in the JS section)
-           ============================== -->
-      <button class="download-app-btn" id="downloadAppBtn" aria-label="Download App">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-        <span>APP</span>
-      </button>
       <button class="icon-btn" id="searchToggle" aria-label="Search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
@@ -682,7 +658,7 @@ a{color:inherit;text-decoration:none;}
         <div class="brand-mark"><span></span><span></span><span></span></div>
         <!-- EDIT APP NAME HERE -->
         <h1 id="aboutAppName">STREAMING BD</h1>
-        <div class="ver">VERSION 1.0</div>
+        <div class="ver" id="aboutVersionTag">VERSION 1.0</div>
       </div>
       <div class="about-copy">
         Streaming BD brings your favorite live TV channels together in one clean,
@@ -694,11 +670,11 @@ a{color:inherit;text-decoration:none;}
         <div class="list-row">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg></div>
           <!-- EDIT DEVELOPER NAME HERE -->
-          <div class="txt"><div class="t1">Developer</div><div class="t2">Your Name / Studio Here</div></div>
+          <div class="txt"><div class="t1">Developer</div><div class="t2" id="aboutDeveloper">Your Name / Studio Here</div></div>
         </div>
         <div class="list-row">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-          <div class="txt"><div class="t1">Version</div><div class="t2">1.0</div></div>
+          <div class="txt"><div class="t1">Version</div><div class="t2" id="aboutVersion">1.0</div></div>
         </div>
         <div class="list-row">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
@@ -707,7 +683,7 @@ a{color:inherit;text-decoration:none;}
       </div>
 
       <!-- EDIT COPYRIGHT HERE -->
-      <div class="about-footer">© 2026 STREAMING BD — All Rights Reserved</div>
+      <div class="about-footer" id="aboutCopyright">© 2026 STREAMING BD — All Rights Reserved</div>
     </section>
 
     <!-- ---------------- PLAYER PAGE ---------------- -->
@@ -867,7 +843,7 @@ let channels = [
 /* ================================================
    EDIT CATEGORY LIST HERE
    ================================================ */
-const categories = ["All","News","Sports","Movies","Music","Kids","Entertainment","Islamic"];
+let categories = ["All","News","Sports","Movies","Music","Kids","Entertainment","Islamic"];
 
 /* ================================================
    EDIT SOCIAL / EXTERNAL LINKS HERE
@@ -877,13 +853,6 @@ let links = {
   facebook: "https://facebook.com/your_facebook_page", // EDIT FACEBOOK LINK HERE
   website:  "https://www.your-website.com"          // EDIT WEBSITE LINK HERE
 };
-
-/* ================================================
-   EDIT APK DOWNLOAD LINK HERE
-   Paste your Google Drive / direct APK link below.
-   The Download App button will automatically use it.
-   ================================================ */
-let APK_DOWNLOAD_URL = ""; // YOUR_APK_DOWNLOAD_LINK_HERE
 
 /* =========================================================================
    STATE
@@ -1237,24 +1206,6 @@ document.getElementById("searchInput").addEventListener("input", (e)=>{
 });
 
 /* =========================================================================
-   FEATURE 2 — DOWNLOAD APP BUTTON CLICK HANDLER
-   Uses APK_DOWNLOAD_URL defined above. Leave it empty until you
-   paste your real APK link — button will prompt you to add it.
-   ========================================================================= */
-document.getElementById("downloadAppBtn").addEventListener("click", ()=>{
-  if(!APK_DOWNLOAD_URL){
-    alert("APK download link not set yet. Please add your link to APK_DOWNLOAD_URL in the script.");
-    return;
-  }
-  const a = document.createElement("a");
-  a.href = APK_DOWNLOAD_URL;
-  a.download = "";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-});
-
-/* =========================================================================
    SETTINGS — DARK MODE + LINKS
    ========================================================================= */
 document.getElementById("darkToggle").addEventListener("click", function(){
@@ -1298,7 +1249,9 @@ renderAll();
 /* =========================================================================
    FIREBASE SYNC — connects this site to admin.html
    Reads live updates from Firestore:
-     - settings/site  → app name, notice text, social links, APK link
+     - settings/site  → app name, notice text, social links,
+                         developer name, version, copyright, last updated
+     - categories/*    → full category list (add / delete)
      - channels/*      → full channel list (add / edit / delete)
    If Firebase isn't configured yet (see firebaseConfig in <head>),
    this fails silently and the site keeps working with its built-in
@@ -1329,7 +1282,7 @@ function setNoticeText(text){
   if(t2) t2.textContent = text;
 }
 function initFirebaseSync(){
-  // App Settings — name, notice bar text, social links, APK link
+  // App Settings — name, notice bar text, social links, About page info
   db.collection("settings").doc("site").onSnapshot((doc)=>{
     if(!doc.exists) return;
     const data = doc.data();
@@ -1338,8 +1291,38 @@ function initFirebaseSync(){
     if(data.telegram) links.telegram = data.telegram;
     if(data.facebook) links.facebook = data.facebook;
     if(data.website) links.website = data.website;
-    if(typeof data.apkUrl === "string" && data.apkUrl) APK_DOWNLOAD_URL = data.apkUrl;
+
+    const devEl = document.getElementById("aboutDeveloper");
+    if(devEl && data.developerName) devEl.textContent = data.developerName;
+
+    const verEl = document.getElementById("aboutVersion");
+    const verTagEl = document.getElementById("aboutVersionTag");
+    if(data.appVersion){
+      if(verEl) verEl.textContent = data.appVersion;
+      if(verTagEl) verTagEl.textContent = "VERSION " + data.appVersion;
+    }
+
+    const copyEl = document.getElementById("aboutCopyright");
+    if(copyEl && data.copyrightText) copyEl.textContent = data.copyrightText;
+
+    const dateEl = document.getElementById("aboutDate");
+    if(dateEl && data.lastUpdated) dateEl.textContent = data.lastUpdated;
   }, (err)=>{ console.warn("Settings sync unavailable (Firebase not configured yet):", err.message); });
+
+  // Categories — full live list from Firestore, replaces the demo categories
+  db.collection("categories").onSnapshot((snapshot)=>{
+    if(snapshot.empty) return; // keep demo categories until Admin Panel adds real ones
+    const names = [];
+    snapshot.forEach((doc)=>{
+      const d = doc.data();
+      if(d.name) names.push(d.name);
+    });
+    categories = ["All", ...names];
+    if(!categories.includes(state.category)) state.category = "All";
+    renderChips();
+    renderLiveGrid();
+    renderFavGrid();
+  }, (err)=>{ console.warn("Category sync unavailable (Firebase not configured yet):", err.message); });
 
   // Channels — full live list from Firestore, replaces the demo channels
   db.collection("channels").onSnapshot((snapshot)=>{
