@@ -512,8 +512,6 @@ a{color:inherit;text-decoration:none;}
 .ad-slot iframe{max-width:100%;}
 .ad-slot--tight{margin:10px 0 4px;}
 </style>
-     <script src="https://pl30668068.effectivecpmnetwork.com/d2/f3/97/d2f397da7bcd44cd8046274350b76e93.js"></script>
-
 </head>
 <body>
 
@@ -1424,5 +1422,104 @@ window.addEventListener("load", ()=>{
 setTimeout(()=>{ document.getElementById("splash").classList.add("hide"); }, 2500);
 </script>
 
+<script>
+/* =========================================================================
+   MOBILE / ANDROID BACK BUTTON NAVIGATION SYSTEM
+   ---------------------------------------------------------------------
+   ADDED COMPATIBILITY LAYER — nothing above this block was modified.
+
+   What this does:
+   - Wraps the existing goToPage() and openPlayer() functions (does not
+     rewrite or replace them) so every real page/channel change is
+     recorded with history.pushState().
+   - Listens for the browser "popstate" event — fired by the Android
+     hardware Back button, the browser Back button, and swipe-back
+     gestures — and replays the correct previous page/channel using the
+     SAME existing goToPage()/openPlayer() functions.
+   - Home Page is treated as the app's root state, so pressing Back while
+     already on Home is left to the browser/OS to handle natively
+     (the site never blocks the user from leaving).
+   - Repeated navigation to the same page (e.g. the live search box,
+     which calls goToPage("home-page") on every keystroke) refreshes the
+     existing history entry instead of stacking duplicate entries.
+   ========================================================================= */
+(function(){
+  if(typeof goToPage !== "function") return; // safety: main app script must exist
+
+  const NAV_FLAG = "sbdNav";
+  let isRestoring = false; // true only while replaying a popstate
+
+  function currentChannelId(){
+    return (typeof state !== "undefined" && state && state.currentChannel) ? state.currentChannel.id : null;
+  }
+
+  function buildState(pageId){
+    return {
+      [NAV_FLAG]: true,
+      page: pageId,
+      channelId: pageId === "player-page" ? currentChannelId() : null
+    };
+  }
+
+  function sameState(a, b){
+    return !!a && !!b && a[NAV_FLAG] && b[NAV_FLAG] && a.page === b.page && a.channelId === b.channelId;
+  }
+
+  // 1) Baseline the current entry as Home — this is the navigation root.
+  //    Pressing Back from here is left to the browser/OS (native exit),
+  //    per the "never trap the user" rule.
+  history.replaceState(buildState("home-page"), "", location.href);
+
+  // 2) Wrap goToPage() — every real page switch records/refreshes a
+  //    history entry; same-page calls just refresh it (no duplicates).
+  const _goToPage = goToPage;
+  goToPage = function(id){
+    _goToPage(id);
+    if(isRestoring) return; // came from a popstate replay — don't re-push
+    const next = buildState(id);
+    if(sameState(history.state, next)){
+      history.replaceState(next, "", location.href);
+    } else {
+      history.pushState(next, "", location.href);
+    }
+  };
+
+  // 3) Wrap openPlayer() so switching channels (Live TV grid, Recently
+  //    Added, Favorites, Related Channels, etc.) is tracked with the
+  //    correct channelId. It already calls the wrapped goToPage()
+  //    internally, so this keeps the layer symmetric and safe.
+  if(typeof openPlayer === "function"){
+    const _openPlayer = openPlayer;
+    openPlayer = function(id){
+      _openPlayer(id);
+    };
+  }
+
+  // 4) Handle the Back button (popstate).
+  window.addEventListener("popstate", function(e){
+    const s = e.state;
+
+    // Not one of our recorded states — the user has gone past the app's
+    // first entry into real browser history. Let the browser do its
+    // normal thing instead of fighting the OS back gesture.
+    if(!s || !s[NAV_FLAG]) return;
+
+    isRestoring = true;
+    try{
+      if(s.page === "player-page" && s.channelId){
+        if(!state.currentChannel || state.currentChannel.id !== s.channelId){
+          if(typeof openPlayer === "function") openPlayer(s.channelId);
+        } else {
+          goToPage("player-page");
+        }
+      } else {
+        goToPage(s.page || "home-page");
+      }
+    } finally {
+      isRestoring = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>
